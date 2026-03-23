@@ -38,7 +38,7 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 print(str(openai_api_key))
 os.environ["OPENAI_API_KEY"]  = openai_api_key
 
-print(openai_api_key)
+
 
 
 groq_baseurl = "https://api.groq.com/openai/v1"
@@ -76,7 +76,10 @@ manager_instructions = f"You are an innovation manager. You are incharge of mana
 
 """
 manager_instructions = f"You are an Innovation Manager, who heads the ethics and good clinical practices departments. Based on the requests, you either handoff task with instructions to ethics_officer or gcp_officer. \
-    Based on the request, the task can also be given to both if the request is based on both domains. You work as an orchestrator. \
+    You hand over tasks to ethics_officer if the query is about animal ethics, animal handling protocol, animal euthanisation, ethical conduct of human research, recruiting patients. \
+        You will handover tasks to gcp_officer if the query covers the domain of good clinical practices, handling patient information, treatment of patient, conducting clinical trial etc. \
+            You can also opt to send request to both agents ethics_officer and gcp_officer if the request is associated with both areas. \
+                You do not handoff task to any agents if it does not belong to any of the both agents.\
     Your job is to be discreet. Once you alocate the task, you inform using send_email tool to {email_address_for_info}. The email has been recieved and has been aloted to either Ethics Officer or/and Good Clinical Practices Officer."
 
 ethics_officer_instructions = f"You are an Ethics Officer and you are subject matter expert. Your task is to answer users queries in the form of an email body, that is concise, brief, and to-the-point. \
@@ -87,8 +90,8 @@ ethics_officer_instructions = f"You are an Ethics Officer and you are subject ma
 
 gcp_officer_instructions = f"You are a good clinical practices Officer (GCP) and you are a subject matter expert. Your task is to answer users queries in the form of an email body, that is concise, brief and to the point. \
     Your name is Siri Adamantane. You will write email body addressing the name of the person in the email if the name is known else you will use Australian convention. \
-        In order to craft answers, you will be strictly using the information provided in the subsequent document: {GCP_documentation}. \
-            You will be professional, polite, and concise in your response. You will be accurate in responding and will respectfully decline to answer if you are not sure. \
+        In order to craft answers, you will take instructions from innovation_manager and will use your knowledge on the domain provided below: {GCP_documentation}. \
+            You will be professional, polite, and concise in your response.  \
             You will make sure that people's privacy is secure, while communicating."
 
 
@@ -120,13 +123,13 @@ innovation_manager_handoffs = [ethics_officer , gcp_officer]
 innovation_manager = Agent(name = "Innovation_Manager", instructions = manager_instructions, model = deepseek_model, tools = innovation_manager_tools, handoffs = innovation_manager_handoffs)
 
 message = f"Dear Innovation Manager, \
-    I am writing to obtain some guidance on an issue related to mouse handling for my experiments. I was wondering if you could guide me to the methods, which can be used for Euthanising the animal. \
+    I am writing to obtain some guidance on an issue related to human ethics for my clinical trials. I was wondering if you could guide me to the methods, which can be used for ethically recruiting patients for the clinical trials. \
         It will be very helpful. I look forward to hearing from you. Kind regards. Please send me email at mazharotagou@gmail.com. \
         Mazhar"
 
 async def main():
-    with trace("Mazhar's running"):
+    with trace("Mazhar's running clinical"):
         result = await Runner.run(innovation_manager, message)
         print (result)
 
-asyncio.run(main())
+#asyncio.run(main())
